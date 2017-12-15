@@ -2,18 +2,26 @@ package Client;
 
 import Server.MasterNode;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rest.Request;
 import rest.Response;
 
 public class Client implements Runnable{
+  private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
   private ArrayList<String> codeToExcecute;
   private MasterNode masterNode;
+  private final int id;
 
-  public Client(MasterNode masterNode) {
+  public Client(MasterNode masterNode, int id) {
+    this.id = id;
     this.codeToExcecute = new ArrayList();
     this.masterNode = masterNode;
   }
@@ -21,55 +29,51 @@ public class Client implements Runnable{
   @Override
   public void run() {
 
-    Thread slaveCreator = new Thread(masterNode);
-    slaveCreator.start();
-
-    readFile("./data/test.txt");
-
-    for (String s : codeToExcecute){
-      System.out.println(s);
-    }
-  }
-
-
-
-  public void readFile (String path){
-    BufferedReader br = null;
-    try{
-      br = new BufferedReader(new FileReader(path));
-      int i = 0;
-      ArrayList arrayList = new ArrayList();
-
-      //One way of reading the file
-      String contentLine = br.readLine();
-      while (contentLine != null) {
-        Request request = new Request(i, contentLine, arrayList);
-
-        codeToExcecute.add(contentLine);
-        masterNode.handleClientRequest(this, request);
-
-        contentLine = br.readLine();
-        i++;
-      }
-    }
-    catch (IOException ioe)
-    {
-      ioe.printStackTrace();
-    }
-    finally
-    {
-      try {
-        if (br != null)
-          br.close();
-      }
-      catch (IOException ioe)
-      {
-        System.out.println("Error in closing the BufferedReader");
-      }
-    }
   }
 
   public void handleServerResponse (Response resp){
+    //get response parameters
+    int workerID = resp.getId();
+    int clientID = getId();
+    String taskPercentage = resp.getFunctionName();
 
+    //write info to output file
+    String path = "./data/taskDocumentationOutput.txt";
+    String outputContent = workerID + "," + clientID + "," + taskPercentage;
+    writeResponseToFile(path, outputContent);
+  }
+
+  public void sendRequestToServer (Client client, Request req){
+    masterNode.handleClientRequest(client, req);
+  }
+
+  private void writeResponseToFile(String path, String response){
+      BufferedWriter bw = null;
+      FileWriter fw = null;
+
+      try {
+        File file = new File(path);
+
+        fw = new FileWriter(file.getAbsoluteFile(), true);
+        bw = new BufferedWriter(fw);
+
+        bw.write(response);
+        bw.newLine();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        try {
+          if (bw != null)
+            bw.close();
+          if (fw != null)
+            fw.close();
+        } catch (IOException ex) {
+          ex.printStackTrace();
+        }
+      }
+  }
+
+  public int getId() {
+    return id;
   }
 }

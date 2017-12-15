@@ -1,0 +1,12 @@
+functio_name,function_parameter,cost
+418Oracle,0,200
+tellmenow,0,5
+countprimes,2,20
+countprimes,3,30
+countprimes,4,40
+countprimes,5,50
+countprimes,6,60
+countprimes,7,70
+countprimes,8,80
+countprimes,9,90
+countprimes,10,100
