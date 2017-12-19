@@ -2,6 +2,10 @@ package rest;
 
 public class Request extends Message {
 
+  /**
+   * Defines a Request
+   */
+
   int args;
 
   public Request(int id, String functionName, int args) {

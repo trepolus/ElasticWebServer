@@ -1,13 +1,10 @@
 package Client;
 
 import Server.MasterNode;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rest.Request;
@@ -16,13 +13,11 @@ import rest.Response;
 public class Client implements Runnable{
   private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
-  private ArrayList<String> codeToExcecute;
   private MasterNode masterNode;
   private final int id;
 
   public Client(MasterNode masterNode, int id) {
     this.id = id;
-    this.codeToExcecute = new ArrayList();
     this.masterNode = masterNode;
   }
 
@@ -43,6 +38,7 @@ public class Client implements Runnable{
     writeResponseToFile(path, outputContent);
   }
 
+  //sends request to server
   public void sendRequestToServer (Client client, Request req){
     masterNode.handleClientRequest(client, req);
   }
@@ -57,6 +53,7 @@ public class Client implements Runnable{
         fw = new FileWriter(file.getAbsoluteFile(), true);
         bw = new BufferedWriter(fw);
 
+        //write response line to existing file
         bw.write(response);
         bw.newLine();
       } catch (IOException e) {

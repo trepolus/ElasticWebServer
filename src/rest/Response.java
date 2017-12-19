@@ -1,7 +1,7 @@
 package rest;
 
 /**
- * Created by Lucas on 14.12.2017.
+ * defines a Response
  */
 public class Response extends Message {
 

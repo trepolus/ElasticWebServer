@@ -12,46 +12,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rest.Request;
 
-
 public class Main {
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args){
 
+    LOGGER.info("Program started..........");
+
+
     //delete old Output File if it still exists and creates a fresh one
     deleteOldOutputFile();
 
+    //initialize masterNode (Server)
     MasterNode masterNode = new MasterNode();
     Thread masterNodeThread = new Thread(masterNode);
     masterNodeThread.start();
 
-    ArrayList<Client>  clients = initializeClients(masterNode);
-    ArrayList<String[]> clientRequests = readRequests("./data/client_requests.txt");
+    //define Path
+    String path = "./data/client_requests.txt";
 
-    //initialize requestId, needed for requests
-    int requestId = 0;
-
-    //create and send all requests
-    for(String[] requestLine : clientRequests){
-      // initialize variables for request
-      int clientId = Integer.parseInt(requestLine[0]);
-      String functionName = requestLine[1];
-      int arguments = Integer.parseInt(requestLine[2]);
-
-      //get client
-      Client client = clients.get(clientId-1);
-      //create request
-      Request request = new Request(requestId, functionName, arguments);
-
-      //send request to Server
-      client.sendRequestToServer(client, request);
-      //increment requestID
-      requestId++;
-    }
-
+    //send all requests from client to the Server
+    sendAllRequests(path, masterNode);
   }
 
-  public static ArrayList<String[]> readRequests (String path){
+  public static ArrayList<String[]> sendAllRequests (String path, MasterNode masterNode){
     ArrayList<String[]> clientRequests = new ArrayList<>();
     String lineSeperator = ",";
 
@@ -59,7 +43,6 @@ public class Main {
     try{
       br = new BufferedReader(new FileReader(path));
       int i = 0;
-      ArrayList arrayList = new ArrayList();
 
       //read file line by line, seperate by ","
       String contentLine = br.readLine();
@@ -70,6 +53,25 @@ public class Main {
         String[] line = contentLine.split(lineSeperator);
         clientRequests.add(line);
 
+        //parse information out of read string
+        int clientId = Integer.parseInt(line[0]);
+        String functionName = line[1];
+        int arguments = Integer.parseInt(line[2]);
+
+        //initialize client
+        Client client = new Client(masterNode, clientId);
+
+        //start client thread
+        Thread clientThread = new Thread(client);
+        clientThread.start();
+
+        //initialize request
+        Request request = new Request(i, functionName, arguments);
+
+        //send request from Client to Server
+        client.sendRequestToServer(client, request);
+
+        //read next line
         contentLine = br.readLine();
         i++;
       }
@@ -90,19 +92,6 @@ public class Main {
       }
     }
     return clientRequests;
-  }
-
-  public static ArrayList<Client> initializeClients (MasterNode masterNode){
-    ArrayList<Client> clients = new ArrayList<>();
-
-    for (int i = 1; i <= 10 ; i++) {
-      Client client = new Client(masterNode, i);
-      Thread clientThread = new Thread(client);
-      clientThread.start();
-
-      clients.add(client);
-    }
-    return clients;
   }
 
   public static void deleteOldOutputFile (){

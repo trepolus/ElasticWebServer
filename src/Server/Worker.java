@@ -1,7 +1,5 @@
 package Server;
-
-import java.sql.Date;
-import java.sql.Time;
+import Client.Client;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +10,10 @@ public class Worker implements Runnable{
   private static final Logger LOGGER = LoggerFactory.getLogger(Worker.class);
 
   private final int id;
-  MasterNode masterNode;
+  private MasterNode masterNode;
+  private Request currentRequest;
+  private Client currentClient;
+
   public Worker(int id, MasterNode masterNode) {
     this.id = id;
     this.masterNode = masterNode;
@@ -20,21 +21,23 @@ public class Worker implements Runnable{
 
   @Override
   public void run() {
-
+    workerHandleRequest();
   }
 
-  public void workerHandleRequest(Request req){
-    LOGGER.info("Worker with ID: " + getId() + " working...");
+  public void workerHandleRequest(){
+    LOGGER.info("Worker with ID: " + getId() + " working on: " + currentRequest.toString());
 
-    executeWork(req);
+    executeWork(currentRequest);
   }
   private void executeWork(Request req){
     long taskStarted = System.currentTimeMillis();
 
+    //decide which function to call based on request
     switch (req.getFunctionName()){
       case "418Oracle": oracle();
       case  "tellmenow": tellMeNow();
       case "countPrimes": countPrimes(req.getArgs());
+      default:
     }
 
     long taskFinished = System.currentTimeMillis();
@@ -51,7 +54,7 @@ public class Worker implements Runnable{
     //round to the last 2 decimals
     String taskPercentage = (String.format(Locale.ROOT,"%.3f", (rawTaskPercentage*100)) + "%");
 
-    LOGGER.info("Percentage of Task" + req.getFunctionName() + "running: " + taskPercentage);
+    LOGGER.info("Percentage of Task " + req.getFunctionName() + " running: " + taskPercentage);
 
     //create response
     Response response = new Response(getId(), taskPercentage);
@@ -61,9 +64,10 @@ public class Worker implements Runnable{
     LOGGER.info("Worker " + getId() + " finished");
   }
   private void workerSendResponse(Response resp){
-    masterNode.handleWorkerResponse(this, resp);
+    masterNode.handleWorkerResponse(this, resp, currentClient);
   }
 
+  //mock functions to let the worker work (--> wait a certain amount of time)
   private void oracle (){
     try {
       Thread.sleep(200);
@@ -90,5 +94,13 @@ public class Worker implements Runnable{
 
   public int getId() {
     return id;
+  }
+
+  public void setCurrentRequest(Request currentRequest) {
+    this.currentRequest = currentRequest;
+  }
+
+  public void setCurrentClient(Client client) {
+    this.currentClient = client;
   }
 }
