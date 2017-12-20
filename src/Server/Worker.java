@@ -60,11 +60,12 @@ public class Worker implements Runnable{
     Response response = new Response(getId(), taskPercentage);
 
     //send response to Master
-    workerSendResponse(response);
+    workerSendResponse(response, taskLength);
     LOGGER.info("Worker " + getId() + " finished");
   }
-  private void workerSendResponse(Response resp){
+  private void workerSendResponse(Response resp, Long tasklength){
     masterNode.handleWorkerResponse(this, resp, currentClient);
+    masterNode.addTaskLength(getId(), tasklength);
   }
 
   //mock functions to let the worker work (--> wait a certain amount of time)

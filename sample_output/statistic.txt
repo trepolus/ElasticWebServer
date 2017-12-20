@@ -1,0 +1,10 @@
+Worker 0 has worked for a percentage of: 9.8% and a time of 4374 ms
+Worker 1 has worked for a percentage of: 10.1% and a time of 4501 ms
+Worker 2 has worked for a percentage of: 10.1% and a time of 4499 ms
+Worker 3 has worked for a percentage of: 10.1% and a time of 4481 ms
+Worker 4 has worked for a percentage of: 9.5% and a time of 4247 ms
+Worker 5 has worked for a percentage of: 10.1% and a time of 4514 ms
+Worker 6 has worked for a percentage of: 10.1% and a time of 4515 ms
+Worker 7 has worked for a percentage of: 10.1% and a time of 4478 ms
+Worker 8 has worked for a percentage of: 9.9% and a time of 4395 ms
+Worker 9 has worked for a percentage of: 10.2% and a time of 4539 ms

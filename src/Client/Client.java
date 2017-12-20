@@ -14,10 +14,9 @@ public class Client implements Runnable{
   private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
   private MasterNode masterNode;
-  private final int id;
+  private int id;
 
-  public Client(MasterNode masterNode, int id) {
-    this.id = id;
+  public Client(MasterNode masterNode) {
     this.masterNode = masterNode;
   }
 
@@ -72,5 +71,9 @@ public class Client implements Runnable{
 
   public int getId() {
     return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 }

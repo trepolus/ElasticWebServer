@@ -28,14 +28,21 @@ public class Main {
     Thread masterNodeThread = new Thread(masterNode);
     masterNodeThread.start();
 
+    //initialize Client
+    Client client = new Client(masterNode);
+    Thread clientThread = new Thread(client);
+    clientThread.start();
+
     //define Path
     String path = "./data/client_requests.txt";
 
     //send all requests from client to the Server
-    sendAllRequests(path, masterNode);
+    sendAllRequests(path, masterNode, client);
+
+    masterNode.calculateStatistic();
   }
 
-  public static ArrayList<String[]> sendAllRequests (String path, MasterNode masterNode){
+  public static ArrayList<String[]> sendAllRequests (String path, MasterNode masterNode, Client client){
     ArrayList<String[]> clientRequests = new ArrayList<>();
     String lineSeperator = ",";
 
@@ -58,12 +65,8 @@ public class Main {
         String functionName = line[1];
         int arguments = Integer.parseInt(line[2]);
 
-        //initialize client
-        Client client = new Client(masterNode, clientId);
-
-        //start client thread
-        Thread clientThread = new Thread(client);
-        clientThread.start();
+        //update client ID
+        client.setId(clientId);
 
         //initialize request
         Request request = new Request(i, functionName, arguments);
